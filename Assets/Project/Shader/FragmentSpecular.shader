@@ -5,7 +5,7 @@ Shader "Play Shader/FragmentSpecular" {
 	Properties {
 		_Diffuse("Diffuse", Color) = (1, 1, 1, 1)
 		_Specular("Specular", Color) = (1, 1, 1, 1)
-		_Gloss("Gloss", Range(1, 255)) = 10
+		_Gloss("Gloss", Range(10, 255)) = 10
 	}
 
 	SubShader {
@@ -49,12 +49,16 @@ Shader "Play Shader/FragmentSpecular" {
 				fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * saturate(NdotL);
 				float reflectDir = normalize(reflect(-worldLight, worldNormal));
 				float3 viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos);
-				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(saturate(dot(reflectDir, viewDir)), _Gloss);
+
+				float3 half = normalize(viewDir + worldLight);
+				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(saturate(dot(worldNormal, half)), _Gloss);
+
+				// fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(saturate(dot(reflectDir, viewDir)), _Gloss);
 				fixed3 color = ambient + diffuse + specular;
 				return fixed4(color, 1);
 			}
 			ENDCG
 		}
 	}
-	FallBack "Diffuse"
+	FallBack "Specular"
 }
