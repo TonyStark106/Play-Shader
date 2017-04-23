@@ -1,4 +1,4 @@
-﻿Shader "Play Shader/VertexSpecular" {
+﻿ Shader "Play Shader/VertexSpecular" {
 
 	Properties {
 		_Diffuse("Diffuse", Color) = (1, 1, 1, 1)
@@ -40,7 +40,8 @@
 				fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * saturate(NdotL);
 				float reflectDir = normalize(reflect(-worldLight, worldNormal));
 				float3 viewDir = normalize(_WorldSpaceCameraPos.xyz);
-				fixed3 specular = _LightColor0 * _Specular * pow(saturate(dot(reflectDir, viewDir)), _Gloss);
+				float3 half = normalize(viewDir + worldLight);
+				fixed3 specular = _LightColor0 * _Specular * pow(saturate(dot(worldNormal, half)), _Gloss);
 				o.color = ambient + diffuse + specular;
 				return o;
 			}
