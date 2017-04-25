@@ -1,6 +1,4 @@
-﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
-
-Shader "Play Shader/AlphaBrend" {
+﻿Shader "Play Shader/AlphaBlend" {
 
 	Properties {
 		_MainTex("Main Texture", 2D) = "white" { }
@@ -11,9 +9,16 @@ Shader "Play Shader/AlphaBrend" {
 
 	SubShader {
 		Tags { "Queue" = "Transparent" "IgnoreProjector" = "True" "RenderType" = "Transparent" }
+
+		// Pass {
+		// 	ZWrite On
+		// 	ColorMask 0
+		// }
+
 		Pass {
 			Tags { "LightMode" = "ForwardBase" }
 			ZWrite Off
+			Cull Off
 			Blend SrcAlpha OneMinusSrcAlpha
 			CGPROGRAM
 			#pragma vertex vert
@@ -47,6 +52,7 @@ Shader "Play Shader/AlphaBrend" {
 				o.worldNormal = UnityObjectToWorldNormal(i.normal);
 				o.worldPos = mul(unity_ObjectToWorld, i.vertex);
 				o.uv = TRANSFORM_TEX(i.texcoord, _MainTex);
+
 				return o;
 			}
 
@@ -55,10 +61,11 @@ Shader "Play Shader/AlphaBrend" {
 				fixed3 worldLight = UnityWorldSpaceLightDir(i.worldPos);
 				fixed NdotL = max(dot(worldNormal, worldLight), 0);
 				fixed4 albedo = tex2D(_MainTex, i.uv) * _Color;
+				fixed alpha = tex2D(_AlphaTex, i.uv).r * _AlphaScale;
 				fixed4 ambient = UNITY_LIGHTMODEL_AMBIENT * albedo;
 				fixed4 diffuse = albedo * _LightColor0 * NdotL;
 				fixed4 color = diffuse + ambient;
-				return fixed4(color.rbg, _AlphaScale);
+				return fixed4(color.rbg, alpha);
 			}
 
 
